@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  username    String   @unique
+  email       String   @unique
+  passwordHash String
+  role        String   @default("user")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tasks       Task[]   @relation("UserTasks")
+}
+
+model Task {
+  id                 String   @id @default(uuid())
+  title              String
+  description        String?
+  status             String
+  priority           String
+  recurrenceInterval String?
+  dueDate            DateTime?
+  sprintId           String?
+  lastStartTime      DateTime?
+  lastStopTime       DateTime?
+  timeSpentOnTask    Int
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  assignees          TaskAssignee[]
+  sprint             Sprint?  @relation(fields: [sprintId], references: [id])
+}
+
+model TaskAssignee {
+  id     String @id @default(uuid())
+  taskId String
+  userId Int
+  task   Task   @relation(fields: [taskId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Sprint {
+  id        String   @id @default(uuid())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tasks     Task[]
+}
+
+model Notification {
+  id            String   @id @default(uuid())
+  userId        Int
+  taskId        String
+  message       String
+  scheduledTime DateTime
+  isSent        Boolean
+  user          User     @relation(fields: [userId], references: [id])
+  task          Task     @relation(fields: [taskId], references: [id])
+}
