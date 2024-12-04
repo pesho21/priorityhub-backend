@@ -1,56 +1,78 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { v4 as uuidv4 } from 'uuid'; 
-import { Task } from './task.interface'
+import { Task } from '@prisma/client';
 
 @Injectable()
 export class TaskService {
-  private tasks: Task[] = [];
+  constructor(private prisma: PrismaService) {}
 
-  create(createTaskDto: CreateTaskDto): Task {
-    const newTask: Task = {
-      id: uuidv4(),
-      ...createTaskDto,
-      status: 'not_started',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    this.tasks.push(newTask);
-    return newTask;
+  async create(createTaskDto: CreateTaskDto): Promise<Task> {
+    const task = await this.prisma.task.create({
+      data: {
+        title: createTaskDto.title,
+        description: createTaskDto.description || null,
+        status: 'not_started', 
+        priority: createTaskDto.priority || 'low',  
+        recurrenceInterval: createTaskDto.recurrenceInterval || null,
+        dueDate: createTaskDto.dueDate ? new Date(createTaskDto.dueDate) : null,
+        sprintId: createTaskDto.sprintId || null,
+        lastStartTime: createTaskDto.lastStartTime ? new Date(createTaskDto.lastStartTime) : null,
+        lastStopTime: createTaskDto.lastStopTime ? new Date(createTaskDto.lastStopTime) : null,
+        timeSpentOnTask: createTaskDto.timeSpentOnTask || 0,  
+      },
+    });
+  
+    return task; 
+  }
+  
+
+  async findAll(): Promise<Task[]> {
+    return this.prisma.task.findMany();
   }
 
-  findAll(): Task[] {
-    return this.tasks;
-  }
+  async findOne(id: string): Promise<Task> {
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+    });
 
-  findOne(id: string): Task {
-    const task = this.tasks.find(task => task.id === id);
     if (!task) {
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
+
     return task;
   }
 
-  update(id: string, updateTaskDto: UpdateTaskDto): Task {
-    const taskIndex = this.tasks.findIndex(task => task.id === id);
-    if (taskIndex === -1) {
+  async update(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+    });
+
+    if (!task) {
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
-    const updatedTask = {
-      ...this.tasks[taskIndex],
-      ...updateTaskDto,
-      updatedAt: new Date(),
-    };
-    this.tasks[taskIndex] = updatedTask;
-    return updatedTask;
+
+    return this.prisma.task.update({
+      where: { id },
+      data: {
+        ...updateTaskDto,
+        updatedAt: new Date(),
+      },
+    });
   }
 
-  remove(id: string): void {
-    const taskIndex = this.tasks.findIndex(task => task.id === id);
-    if (taskIndex === -1) {
+  async remove(id: string): Promise<void> {
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+    });
+
+    if (!task) {
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
-    this.tasks.splice(taskIndex, 1);
+
+    await this.prisma.task.delete({
+      where: { id },
+    });
   }
 }

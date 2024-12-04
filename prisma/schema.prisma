@@ -11,43 +11,51 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  username    String   @unique
-  email       String   @unique
-  passwordHash String
-  role        String   @default("user")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  tasks       Task[]   @relation("UserTasks")
+  id            String         @id @default(uuid())
+  username      String         @unique
+  email         String         @unique
+  passwordHash  String
+  role          String         @default("user")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  tasks         Task[]         @relation("UserTasks")
+  notifications Notification[] 
+  taskAssignees TaskAssignee[] 
 }
 
 model Task {
-  id                 String   @id @default(uuid())
+  id                 String         @id @default(uuid())
   title              String
   description        String?
   status             String
   priority           String
+  sprintId           String?
   recurrenceInterval String?
   dueDate            DateTime?
-  sprintId           String?
   lastStartTime      DateTime?
   lastStopTime       DateTime?
   timeSpentOnTask    Int
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
   assignees          TaskAssignee[]
-  sprint             Sprint?  @relation(fields: [sprintId], references: [id])
+  
+  sprint             Sprint?        @relation(fields: [sprintId], references: [id])
+
+  users User[] @relation("UserTasks")
+
+  notifications Notification[] @relation("TaskNotifications")
+  Notification  Notification[]
 }
 
 model TaskAssignee {
   id     String @id @default(uuid())
   taskId String
-  userId Int
+  userId String
   task   Task   @relation(fields: [taskId], references: [id])
   user   User   @relation(fields: [userId], references: [id])
 }
@@ -64,11 +72,13 @@ model Sprint {
 
 model Notification {
   id            String   @id @default(uuid())
-  userId        Int
+  userId        String
   taskId        String
   message       String
   scheduledTime DateTime
   isSent        Boolean
   user          User     @relation(fields: [userId], references: [id])
   task          Task     @relation(fields: [taskId], references: [id])
+
+  taskNotifications Task[] @relation("TaskNotifications")
 }

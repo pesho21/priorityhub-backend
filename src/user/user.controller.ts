@@ -1,35 +1,61 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, HttpCode, HttpStatus} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './user.interface'
+import { User } from '@prisma/client'; 
 
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.userService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto){
+      const newUser = await this.userService.create(createUserDto);
+      return { newUser };
   }
 
   @Get()
-  findAll(): User[] {
-    return this.userService.findAll();
+  async findAll() {
+    const users = await this.userService.findAll();
+    return { users };
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: number): User {
-    return this.userService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    try {
+      const user = await this.userService.findOne(id);
+      return { user };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
   }
 
   @Patch(':id')
-  update(@Param('id', ParseUUIDPipe) id: number, @Body() updateUserDto: UpdateUserDto): Promise<User> {
-    return this.userService.update(id, updateUserDto);
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    try {
+      const updatedUser = await this.userService.update(id, updateUserDto);
+      return { updatedUser };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: number) {
-    return this.userService.remove(id);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@Param('id') id: string): Promise<void> {
+    try {
+      await this.userService.remove(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
   }
 }

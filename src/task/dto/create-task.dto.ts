@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsEnum, IsDateString, IsNotEmpty } from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsDateString, IsNotEmpty, IsInt, IsNumber, IsUUID } from 'class-validator';
 
 export class CreateTaskDto {
   @IsString()
@@ -15,13 +15,24 @@ export class CreateTaskDto {
 
   @IsEnum(['daily', 'weekly', 'monthly', null])
   @IsOptional()
-  recurrence_interval?: 'daily' | 'weekly' | 'monthly' | null;
+  recurrenceInterval?: 'daily' | 'weekly' | 'monthly' | null;
 
   @IsDateString()
   @IsOptional()
-  due_date?: string;
+  dueDate?: string;
 
   @IsString()
   @IsOptional()
-  sprint_id?: string;
+  sprintId?: string; 
+
+  @IsDateString()
+  @IsOptional()
+  lastStartTime?: string; 
+
+  @IsDateString()
+  @IsOptional()
+  lastStopTime?: string; 
+  @IsInt()
+  @IsOptional()
+  timeSpentOnTask?: number;
 }

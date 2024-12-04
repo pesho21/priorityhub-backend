@@ -2,34 +2,37 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { SprintService } from './sprint.service';
 import { CreateSprintDto } from './dto/create-sprint.dto';
 import { UpdateSprintDto } from './dto/update-sprint.dto';
-import { Sprint } from './sprint.interface'
+import { Sprint } from '@prisma/client';
 
 @Controller('sprint')
 export class SprintController {
   constructor(private readonly sprintService: SprintService) {}
 
   @Post()
-  create(@Body() createSprintDto: CreateSprintDto): Sprint {
+  async create(@Body() createSprintDto: CreateSprintDto): Promise<Sprint> {
     return this.sprintService.create(createSprintDto);
   }
 
   @Get()
-  findAll(): Sprint[] {
+  async findAll(): Promise<Sprint[]> {
     return this.sprintService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Sprint {
+  async findOne(@Param('id') id: string): Promise<Sprint> {
     return this.sprintService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSprintDto: UpdateSprintDto): Sprint {
+  async update(
+    @Param('id') id: string,
+    @Body() updateSprintDto: UpdateSprintDto,
+  ): Promise<Sprint> {
     return this.sprintService.update(id, updateSprintDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string): Promise<void> {
     return this.sprintService.remove(id);
   }
 }

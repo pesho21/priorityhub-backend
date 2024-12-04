@@ -2,34 +2,34 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { Task } from './task.interface'
+import { Task } from '@prisma/client';
 
 @Controller('task')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Post()
-  create(@Body() createTaskDto: CreateTaskDto): Task {
-    return this.taskService.create(createTaskDto);
+  async create(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
+    return this.taskService.create(createTaskDto); 
   }
 
   @Get()
-  findAll(): Task[] {
+  findAll(): Promise<Task[]> {
     return this.taskService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string): Task {
+  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Task> {
     return this.taskService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateTaskDto: UpdateTaskDto): Task {
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateTaskDto: UpdateTaskDto): Promise<Task> {
     return this.taskService.update(id, updateTaskDto);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.taskService.remove(id);
   }
 }

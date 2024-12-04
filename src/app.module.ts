@@ -10,9 +10,11 @@ import { UserController } from './user/user.controller';
 import { SprintService } from './sprint/sprint.service';
 import { UserService } from './user/user.service';
 import { TaskService } from './task/task.service';
+import { AuthModule } from './auth/auth.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
-  imports: [TaskModule, SprintModule, UserModule],
+  imports: [PrismaModule, TaskModule, SprintModule, UserModule, AuthModule],
   controllers: [AppController, SprintController, TaskController, UserController],
   providers: [AppService, SprintService, UserService, TaskService],
 })
