@@ -32,6 +32,7 @@ export class CreateTaskDto {
   @IsDateString()
   @IsOptional()
   lastStopTime?: string; 
+  
   @IsInt()
   @IsOptional()
   timeSpentOnTask?: number;

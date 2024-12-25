@@ -28,12 +28,12 @@ export class AuthService {
   }
   
   
-
-  async login(user: any) {
-    if (!user || !user.email || !user.id) {
-      throw new UnauthorizedException('Invalid user data');
+  async login(email: string, password: string) {
+    const user = await this.validateUser(email, password);
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
     }
-  
+
     const userDetails = { email: user.email, sub: user.id };
     const accessToken = this.jwtService.sign(userDetails);
     return { accessToken };

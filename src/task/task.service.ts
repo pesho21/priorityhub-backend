@@ -8,7 +8,7 @@ import { Task } from '@prisma/client';
 export class TaskService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createTaskDto: CreateTaskDto): Promise<Task> {
+  async create(createTaskDto: CreateTaskDto, userId: string): Promise<Task> {
     const task = await this.prisma.task.create({
       data: {
         title: createTaskDto.title,
@@ -20,17 +20,27 @@ export class TaskService {
         sprintId: createTaskDto.sprintId || null,
         lastStartTime: createTaskDto.lastStartTime ? new Date(createTaskDto.lastStartTime) : null,
         lastStopTime: createTaskDto.lastStopTime ? new Date(createTaskDto.lastStopTime) : null,
-        timeSpentOnTask: createTaskDto.timeSpentOnTask || 0,  
+        timeSpentOnTask: createTaskDto.timeSpentOnTask || 0,
+        users: {
+          connect: { id: userId },
+        },
       },
     });
   
     return task; 
   }
   
-
-  async findAll(): Promise<Task[]> {
-    return this.prisma.task.findMany();
+  
+  async findAll(userId: string): Promise<Task[]> {
+    return this.prisma.task.findMany({
+      where: {
+        users: {
+          some: { id: userId }, 
+        },
+      },
+    });
   }
+  
 
   async findOne(id: string): Promise<Task> {
     const task = await this.prisma.task.findUnique({
@@ -43,6 +53,12 @@ export class TaskService {
 
     return task;
   }
+
+  /*async findAllByUserId(userId: string): Promise<Task[]>{
+    const tasks[] = await this.prisma.task.findMany({
+      where: { }
+    })
+  }*/
 
   async update(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
     const task = await this.prisma.task.findUnique({
