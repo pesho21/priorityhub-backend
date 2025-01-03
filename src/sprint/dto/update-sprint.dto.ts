@@ -9,9 +9,9 @@ export class UpdateSprintDto extends PartialType(CreateSprintDto) {
 
   @IsDateString()
   @IsOptional()
-  start_date?: string;
+  startDate?: string;
 
   @IsDateString()
   @IsOptional()
-  end_date?: string;
+  endDate?: string;
 }

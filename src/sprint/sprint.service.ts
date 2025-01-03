@@ -12,8 +12,8 @@ export class SprintService {
     return this.prisma.sprint.create({
       data: {
         name: createSprintDto.name,
-        startDate: new Date(createSprintDto.start_date),
-        endDate: new Date(createSprintDto.end_date),
+        startDate: new Date(createSprintDto.startDate),
+        endDate: new Date(createSprintDto.endDate),
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -36,6 +36,22 @@ export class SprintService {
     return sprint;
   }
 
+  async getTasksForSprint(sprintId: string) {
+    return this.prisma.task.findMany({
+      where: { sprintId },
+      include: {
+        users: true,
+      },
+    });
+  }
+
+  async getAvailableSprints() {
+    const now = new Date();
+    return this.prisma.sprint.findMany({
+      where: { endDate: { gt: now } },
+    });
+  }
+
   async update(id: string, updateSprintDto: UpdateSprintDto): Promise<Sprint> {
     const sprint = await this.prisma.sprint.findUnique({
       where: { id },
@@ -49,11 +65,11 @@ export class SprintService {
       where: { id },
       data: {
         name: updateSprintDto.name || sprint.name,
-        startDate: updateSprintDto.start_date
-          ? new Date(updateSprintDto.start_date)
+        startDate: updateSprintDto.startDate
+          ? new Date(updateSprintDto.startDate)
           : sprint.startDate,
-        endDate: updateSprintDto.end_date
-          ? new Date(updateSprintDto.end_date)
+        endDate: updateSprintDto.endDate
+          ? new Date(updateSprintDto.endDate)
           : sprint.endDate,
         updatedAt: new Date(),
       },

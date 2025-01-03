@@ -7,9 +7,9 @@ export class CreateSprintDto {
 
   @IsDateString()
   @IsNotEmpty()
-  start_date: string;
+  startDate: string;
 
   @IsDateString()
   @IsNotEmpty()
-  end_date: string;
+  endDate: string;
 }

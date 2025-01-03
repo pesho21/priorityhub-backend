@@ -54,12 +54,6 @@ export class TaskService {
     return task;
   }
 
-  /*async findAllByUserId(userId: string): Promise<Task[]>{
-    const tasks[] = await this.prisma.task.findMany({
-      where: { }
-    })
-  }*/
-
   async update(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
     const task = await this.prisma.task.findUnique({
       where: { id },

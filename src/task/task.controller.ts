@@ -30,11 +30,6 @@ export class TaskController {
     return this.taskService.findOne(id);
   }
 
-  /*@Get(':userId')
-  findAllByUserId(@Param('userId', ParseUUIDPipe) userId: string): Promise<Task[]>{
-    return this.taskService.findAllByUserId(userId);
-  }*/
-
   @Patch(':id')
   update(@Param('id', ParseUUIDPipe) id: string, @Body() updateTaskDto: UpdateTaskDto): Promise<Task> {
     return this.taskService.update(id, updateTaskDto);
