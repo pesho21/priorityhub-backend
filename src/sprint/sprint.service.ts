@@ -52,6 +52,33 @@ export class SprintService {
     });
   }
 
+  async getSprintReport(sprintId: string, userId: string) {
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        sprintId,
+        status: "completed",
+        users: {
+          some: {
+            id: userId,
+          },
+        },
+      },
+    });
+
+    const priorityCounts = tasks.reduce(
+      (acc, task) => {
+        acc[task.priority] = (acc[task.priority] || 0) + 1;
+        return acc;
+      },
+      { low: 0, medium: 0, high: 0 },
+    );
+
+    return {
+      totalCompleted: tasks.length,
+      priorityCounts,
+    };
+  }
+
   async update(id: string, updateSprintDto: UpdateSprintDto): Promise<Sprint> {
     const sprint = await this.prisma.sprint.findUnique({
       where: { id },

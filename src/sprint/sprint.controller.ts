@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request} from '@nestjs/common';
 import { SprintService } from './sprint.service';
 import { CreateSprintDto } from './dto/create-sprint.dto';
 import { UpdateSprintDto } from './dto/update-sprint.dto';
@@ -30,9 +30,15 @@ export class SprintController {
     return this.sprintService.getTasksForSprint(sprintId);
   }
 
-  @Get('list/available')
+  @Get('filter/available')
   async getAvailableSprints() {
     return this.sprintService.getAvailableSprints();
+  }
+
+  @Get(':id/report')
+  async getSprintReport(@Param('id') sprintId: string, @Request() req) {
+    const userId = req.user.id;
+    return this.sprintService.getSprintReport(sprintId, userId);
   }
 
   @Patch(':id')
