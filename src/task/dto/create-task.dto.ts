@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsEnum, IsDateString, IsNotEmpty, IsInt, IsNumber, IsUUID } from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsDateString, IsNotEmpty, IsInt, IsArray, IsUUID } from 'class-validator';
 
 export class CreateTaskDto {
   @IsString()
@@ -24,6 +24,11 @@ export class CreateTaskDto {
   @IsString()
   @IsOptional()
   sprintId?: string; 
+
+  @IsArray()
+  @IsUUID("4", { each: true })
+  @IsOptional()
+  assignees?: string[];
 
   @IsDateString()
   @IsOptional()

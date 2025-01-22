@@ -44,7 +44,7 @@ model Task {
   
   sprint             Sprint?        @relation(fields: [sprintId], references: [id])
 
-  users User[] @relation("UserTasks")
+  assignees User[] @relation("UserTasks")
 
   notifications Notification[] @relation("TaskNotifications")
   Notification  Notification[]

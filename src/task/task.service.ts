@@ -58,19 +58,29 @@ export class TaskService {
     const task = await this.prisma.task.findUnique({
       where: { id },
     });
-
+  
     if (!task) {
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
-
-    return this.prisma.task.update({
+  
+    const { assignees, ...otherUpdates } = updateTaskDto as any;
+  
+    const updatedTask = await this.prisma.task.update({
       where: { id },
       data: {
-        ...updateTaskDto,
+        ...otherUpdates,
         updatedAt: new Date(),
+        assignees: assignees
+          ? {
+              set: assignees.map((userId) => ({ id: userId })), 
+            }
+          : undefined, 
       },
     });
+  
+    return updatedTask;
   }
+  
 
   async remove(id: string): Promise<void> {
     const task = await this.prisma.task.findUnique({
