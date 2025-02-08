@@ -53,6 +53,7 @@ export class SprintService {
   }
 
   async getSprintReport(sprintId: string, userId: string) {
+    let totalTime;
     const tasks = await this.prisma.task.findMany({
       where: {
         sprintId,
@@ -73,9 +74,25 @@ export class SprintService {
       { low: 0, medium: 0, high: 0 },
     );
 
+    const tasks2 = await this.prisma.task.findMany({
+      where: {
+        sprintId,
+        users: {
+          some: {
+            id: userId,
+          },
+        },
+      },
+    });
+
+    tasks2.map((task) => {
+      totalTime += task.timeSpentOnTask;
+    });
+
     return {
       totalCompleted: tasks.length,
       priorityCounts,
+      totalTime,
     };
   }
 
