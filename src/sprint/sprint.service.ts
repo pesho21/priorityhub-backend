@@ -40,7 +40,7 @@ export class SprintService {
     return this.prisma.task.findMany({
       where: { sprintId },
       include: {
-        users: true,
+        assignees: true,
       },
     });
   }
@@ -58,7 +58,7 @@ export class SprintService {
       where: {
         sprintId,
         status: "completed",
-        users: {
+        assignees: {
           some: {
             id: userId,
           },
@@ -77,7 +77,7 @@ export class SprintService {
     const tasks2 = await this.prisma.task.findMany({
       where: {
         sprintId,
-        users: {
+        assignees: {
           some: {
             id: userId,
           },

@@ -21,7 +21,7 @@ export class TaskService {
         lastStartTime: createTaskDto.lastStartTime ? new Date(createTaskDto.lastStartTime) : null,
         lastStopTime: createTaskDto.lastStopTime ? new Date(createTaskDto.lastStopTime) : null,
         timeSpentOnTask: createTaskDto.timeSpentOnTask || 0,
-        users: {
+        assignees: {
           connect: { id: userId },
         },
       },
@@ -34,7 +34,7 @@ export class TaskService {
   async findAll(userId: string): Promise<Task[]> {
     return this.prisma.task.findMany({
       where: {
-        users: {
+        assignees: {
           some: { id: userId }, 
         },
       },
@@ -80,7 +80,6 @@ export class TaskService {
   
     return updatedTask;
   }
-  
 
   async remove(id: string): Promise<void> {
     const task = await this.prisma.task.findUnique({
