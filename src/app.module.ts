@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TaskController } from './task/task.controller';
 import { TaskModule } from './task/task.module';
 import { SprintModule } from './sprint/sprint.module';
@@ -15,7 +13,7 @@ import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [PrismaModule, TaskModule, SprintModule, UserModule, AuthModule],
-  controllers: [AppController, SprintController, TaskController, UserController],
-  providers: [AppService, SprintService, UserService, TaskService],
+  controllers: [SprintController, TaskController, UserController],
+  providers: [SprintService, UserService, TaskService],
 })
 export class AppModule {}
