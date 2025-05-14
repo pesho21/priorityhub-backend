@@ -2,7 +2,6 @@ import {Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, Ht
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from '@prisma/client'; 
 
 @Controller('users')
 export class UserController {
@@ -30,6 +29,21 @@ export class UserController {
         throw error;
       }
       throw new NotFoundException(`User with ID ${id} not found`);
+    }
+  }
+
+  @Get(':username/email')
+  async findEmail(@Param('username') username: string) {
+    try {
+      console.log(username);
+      const email = await this.userService.findEmail(username);
+      console.log(email);
+      return { email };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new NotFoundException(`User with username ${username} not found`);
     }
   }
 

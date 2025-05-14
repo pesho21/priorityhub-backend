@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -10,6 +10,7 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto): Promise<User>{
+    try {
     const passwordHash = await bcrypt.hash(createUserDto.password, 10); 
     const newUser = await this.prisma.user.create({
       data: {
@@ -20,6 +21,13 @@ export class UserService {
       },
     });
     return newUser;
+       } catch (error) {
+      throw new HttpException({
+        status: HttpStatus.FORBIDDEN
+      }, HttpStatus.FORBIDDEN, {
+      cause: error
+    });
+    }
   }
   
 
@@ -37,11 +45,21 @@ export class UserService {
     return user;
   }
 
+  async findEmail(username: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+    });
+    if (!user) {
+      throw new NotFoundException(`User with username ${username} not found`);
+    }
+    return user.email;
+  }
+
   async findByEmail(email: string) {
     return this.prisma.user.findUnique({
       where: { 
-        email: email, 
-      },
+        email: email,
+       },
     });
   }
 
