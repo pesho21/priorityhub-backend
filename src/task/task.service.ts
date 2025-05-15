@@ -32,19 +32,29 @@ export class TaskService {
   
   
   async findAll(userId: string): Promise<Task[]> {
-    return this.prisma.task.findMany({
+    const tasks = this.prisma.task.findMany({
       where: {
         assignees: {
           some: { id: userId }, 
         },
       },
+      include: {
+        assignees: true,
+      },
     });
+    console.log((await tasks).map((task) => ({
+      ...task,
+    })));
+    return tasks;
   }
   
 
   async findOne(id: string): Promise<Task> {
     const task = await this.prisma.task.findUnique({
       where: { id },
+      include: {
+        assignees: true,
+      },
     });
 
     if (!task) {
@@ -64,6 +74,8 @@ export class TaskService {
     }
   
     const { assignees, ...otherUpdates } = updateTaskDto as any;
+    if(otherUpdates.sprintId == '') otherUpdates.sprintId = null;
+    console.log(otherUpdates);
   
     const updatedTask = await this.prisma.task.update({
       where: { id },

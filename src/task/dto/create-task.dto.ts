@@ -27,8 +27,7 @@ export class CreateTaskDto {
 
   @IsArray()
   @IsUUID("4", { each: true })
-  @IsOptional()
-  assignees?: string[];
+  assignees: string[];
 
   @IsDateString()
   @IsOptional()
