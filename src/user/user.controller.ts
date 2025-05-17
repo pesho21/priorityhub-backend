@@ -1,7 +1,9 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, HttpCode, HttpStatus} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, HttpCode, HttpStatus, UseGuards, ForbiddenException} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtGuard } from 'src/auth/jwt.guard';
+import { GetUser } from './get-user';
 
 @Controller('users')
 export class UserController {
@@ -46,9 +48,14 @@ export class UserController {
       throw new NotFoundException(`User with username ${username} not found`);
     }
   }
-
+  
+  @UseGuards(JwtGuard)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @GetUser() user: any) {
+    if (user.id !== id) {
+      throw new ForbiddenException('You can only update your own account');
+    }
+
     try {
       const updatedUser = await this.userService.update(id, updateUserDto);
       return { updatedUser };
@@ -60,9 +67,14 @@ export class UserController {
     }
   }
 
+  @UseGuards(JwtGuard)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string): Promise<void> {
+  async remove(@Param('id') id: string, @GetUser() user: any): Promise<void> {
+    if (user.id !== id) {
+      throw new ForbiddenException('You can only update your own account');
+    }
+
     try {
       await this.userService.remove(id);
     } catch (error) {
