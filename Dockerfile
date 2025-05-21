@@ -1,14 +1,13 @@
-FROM node:23-alpine
+FROM node:22-slim
 
 WORKDIR /app
 
-RUN apk add --no-cache openssl
+RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 COPY package*.json ./
 RUN npm install
 
 COPY . .
-COPY wait-for-it.sh .
 
 RUN npx prisma generate
 
